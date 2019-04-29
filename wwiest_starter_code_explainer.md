@@ -1,7 +1,7 @@
 ### Starter Code Explainer
 ---
 April 2019\
-Woodrow Wiest - wwiest@gmail.com - GitHub
+Woodrow Wiest - wwiest@gmail.com - https://github.com/woodrowwiest/FCND-Motion-Planning
 #### What's going on in the provided `motion_planning.py` and `planning_utils.py`
 These scripts contain a basic planning implementation that includes all necessary flight states, callbacks and transitions for an autonomous vertical takeoff and landing aerial vehicle to traverse a given preplanned path.
 
