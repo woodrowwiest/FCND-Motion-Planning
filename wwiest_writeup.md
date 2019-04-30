@@ -130,3 +130,4 @@ Yes.
 
 This initial commit uses the bare minimum systems required to get the drone going to pass project evaluation with respect to project timing deadlines.  I have all intent to continue this project until there is an efficient drone flight algorithm.
 
+![Favorite Landing Spot Image](./misc/fav-spot.png)
