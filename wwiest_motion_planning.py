@@ -1,5 +1,5 @@
 import argparse
-import csv # to handle data
+import csv  # to handle data
 import time
 import msgpack
 from enum import Enum, auto
@@ -46,11 +46,11 @@ class MotionPlanning(Drone):
             if -1.0 * self.local_position[2] > 0.95 * self.target_position[2]:
                 self.waypoint_transition()
         elif self.flight_state == States.WAYPOINT:
-            if np.linalg.norm(self.target_position[0:2] - self.local_position[0:2]) < 1.0:
+            if np.linalg.norm(self.target_position[0:2] - self.local_position[0:2]) < 5.0:  # deadband here
                 if len(self.waypoints) > 0:
                     self.waypoint_transition()
                 else:
-                    if np.linalg.norm(self.local_velocity[0:2]) < 1.0: # if deltaV < 1
+                    if np.linalg.norm(self.local_velocity[0:2]) < 1.0:  # if deltaV < 1
                         self.landing_transition()
 
     def velocity_callback(self):
@@ -86,7 +86,7 @@ class MotionPlanning(Drone):
     def waypoint_transition(self):
         self.flight_state = States.WAYPOINT
         print("waypoint transition")
-        self.target_position = self.waypoints.pop(0) # pop out 1st item in list and assign target_pos that val
+        self.target_position = self.waypoints.pop(0)  # pop out 1st item in list and assign target_pos that val
         print('target position', self.target_position)
         self.cmd_position(self.target_position[0], self.target_position[1],
                           self.target_position[2], self.target_position[3])
@@ -122,6 +122,7 @@ class MotionPlanning(Drone):
         self.target_position[2] = TARGET_ALTITUDE
 
         # TODO:DONE read lat0, lon0 from colliders into floating point values
+        # Using csv package to make life simpler.  Could I make this more efficient?
         with open('colliders.csv', 'r') as f:
             reader = csv.reader(f, delimiter=',')
             coords = next(reader)
@@ -149,15 +150,18 @@ class MotionPlanning(Drone):
         # grid_start = (-north_offset, -east_offset)
 
         # TODO:DONE convert start position to current position rather than map center
+        # add altitude here later to begin atop a building somewhere
         grid_start = (int(-north_offset + current_local_position[0]),
                       int(-east_offset + current_local_position[1]))
         
         # Set goal as some arbitrary position on the grid
         # grid_goal = (-north_offset + 10, -east_offset + 10)
+
         # TODO:DONE adapt to set goal as latitude / longitude position and convert
-        # test goal which is closer to map center:
+        # a tester goal which is near map center:
         # global_goal = [-122.39619, 37.79449, 0]
-        # test goal which is north of map by the basin
+
+        # a tester goal which is north by the basin
         global_goal = [-122.393932, 37.79731, 0]
         print("Global goal:", global_goal)
 
@@ -169,8 +173,8 @@ class MotionPlanning(Drone):
 
         # Run A* to find a path from start to goal
         # TODO:DONE add diagonal motions with a cost of sqrt(2) to your A* implementation
-        # see: 'wwiest_planning_utils.py' for cost calculation
-        # or move to a different search space such as a graph (not implemented here)
+        # NOTE: see 'wwiest_planning_utils.py' for cost calculation
+        # not implemented here--> # move to a different search space such as a graph
         print('Grid Start: {0} Grid Goal: {1}'.format(grid_start, grid_goal))
         path, cost = a_star(grid, heuristic, grid_start, grid_goal)
         # print("Path: {0}, Cost: {1}".format(path, cost))
@@ -180,6 +184,7 @@ class MotionPlanning(Drone):
         print("{0} paths pruned to {1}".format(len(path), len(pruned_path)))
 
         # TODO (if you're feeling ambitious): Try a different approach altogether!
+        # NOTE: will look into this at a future date
 
         # Convert path to waypoints
         waypoints = [[p[0] + north_offset, p[1] + east_offset, TARGET_ALTITUDE, 0] for p in pruned_path]
